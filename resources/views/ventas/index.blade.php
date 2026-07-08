@@ -88,16 +88,43 @@
     <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden flex flex-col justify-between">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                        <th class="py-4 px-6 w-12 text-center">N°</th>
-                        <th class="py-4 px-6">Fecha / Hora</th>
-                        <th class="py-4 px-6">Barbero / Empleado</th>
-                        <th class="py-4 px-6">Servicio Realizado</th>
-                        <th class="py-4 px-6 text-right">Precio Cobrado</th>
-                        <th class="py-4 px-6 text-center w-28">Acciones</th>
-                    </tr>
-                </thead>
+                
+               <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                    <th class="py-4 px-6 w-12 text-center">
+                        <a href="{{ sort_table_link('id') }}" class="hover:text-slate-900 inline-flex items-center gap-1">
+                            N° {!! sort_table_icon('id') !!}
+                        </a>
+                    </th>
+                    
+                    <th class="py-4 px-6">
+                        <a href="{{ sort_table_link('fecha') }}" class="hover:text-slate-900 inline-flex items-center gap-1">
+                            Fecha / Hora {!! sort_table_icon('fecha') !!}
+                        </a>
+                    </th>
+                    
+                    <th class="py-4 px-6">
+                        <a href="{{ sort_table_link('empleado_id') }}" class="hover:text-slate-900 inline-flex items-center gap-1">
+                            Barbero {!! sort_table_icon('empleado_id') !!}
+                        </a>
+                    </th>
+                    
+                    <th class="py-4 px-6">
+                        <a href="{{ sort_table_link('servicio_id') }}" class="hover:text-slate-900 inline-flex items-center gap-1">
+                            Servicio realizado {!! sort_table_icon('servicio_id') !!}
+                        </a>
+                    </th>
+                    
+                    <th class="py-4 px-6 text-right">
+                        <a href="{{ sort_table_link('precio_cobrado') }}" class="hover:text-slate-900 inline-flex items-center gap-1 justify-end w-full">
+                            Precio Cobrado {!! sort_table_icon('precio_cobrado') !!}
+                        </a>
+                    </th>
+                    
+                    <th class="py-4 px-6 text-center w-28">Acciones</th>
+                </tr>
+            </thead>
+
                 <tbody class="divide-y divide-slate-100 text-sm text-slate-700">
                     @forelse($ventas as $venta)
                         <tr class="hover:bg-slate-50/80 transition-colors">

@@ -10,31 +10,45 @@ use Illuminate\Http\Request;
 class VentaController extends Controller
 {
     // Pantalla principal del historial de ventas
-   public function index(Request $request)
+public function index(Request $request)
 {
-    // 1. Iniciamos la consulta base con sus relaciones
-    $query = VentaServicio::with(['empleado', 'servicio'])
-                            ->orderBy('fecha', 'desc')
-                            ->orderBy('hora', 'desc');
+    // 1. Capturamos los parámetros de ordenamiento o asignamos los valores por defecto
+    $sort = $request->get('sort', 'fecha'); // Columna por defecto
+    $direction = $request->get('direction', 'desc'); // Dirección por defecto
 
-    // 2. Si el usuario seleccionó un barbero específico, filtramos por empleado_id
+    // Lista de columnas permitidas para evitar inyecciones SQL en el ->orderBy
+    $columnasPermitidas = ['id', 'fecha', 'precio_cobrado', 'empleado_id', 'servicio_id'];
+    if (!in_array($sort, $columnasPermitidas)) {
+        $sort = 'fecha';
+    }
+
+    // 2. Iniciamos la consulta base con sus relaciones
+    $query = VentaServicio::with(['empleado', 'servicio']);
+
+    // 3. Aplicamos los filtros existentes (Barberos y Servicios)
     $query->when($request->filled('barbero_id'), function ($q) use ($request) {
         return $q->where('empleado_id', $request->barbero_id);
     });
 
-    // 3. Si el usuario seleccionó un servicio específico, filtramos por servicio_id
     $query->when($request->filled('servicio_id'), function ($q) use ($request) {
         return $q->where('servicio_id', $request->servicio_id);
     });
 
-    // 4. Paginamos los resultados ya filtrados (10 por página)
-    // El método appends asegura que si cambias de página, el filtro no se pierda
+    // 4. NUEVO: Aplicamos el ordenamiento dinámico elegido
+    if ($sort === 'fecha') {
+        // Si es por fecha, ordenamos secundariamente por hora para que sea exacto
+        $query->orderBy('fecha', $direction)->orderBy('hora', $direction);
+    } else {
+        $query->orderBy($sort, $direction);
+    }
+
+    // 5. Paginamos manteniendo TODOS los parámetros en la URL (filtros + ordenamiento)
     $ventas = $query->paginate(10)->appends($request->all());
 
-    // 5. Calculamos las ganancias totales reflejando el filtro actual
+    // 6. Calculamos las ganancias totales reflejando los filtros activos
     $totalGanancias = $query->sum('precio_cobrado');
 
-    // 6. Catálogos para los selectores del formulario flotante y de la barra de filtros
+    // Catálogos para los formularios y filtros
     $barberos = Empleado::where('estado', 1)->orderBy('nombre', 'asc')->get();
     $servicios = Servicio::orderBy('nombre_servicio', 'asc')->get();
 

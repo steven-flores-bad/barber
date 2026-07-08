@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\VentaController;
-
+use App\Http\Controllers\EmpleadoController;
 // 1. Panel de Inicio
 Route::get('/', function () {
     return view('dashboard');
@@ -18,9 +18,10 @@ Route::post('/ventas/actualizar/{id}', [VentaController::class, 'update'])->name
 Route::post('/ventas/eliminar/{id}', [VentaController::class, 'destroy'])->name('ventas.destroy');
 
 // 3. Módulo de Barberos
-Route::get('/barberos', function () {
-    return view('barberos.index');
-})->name('barberos.index');
+Route::get('/barberos', [EmpleadoController::class, 'index'])->name('barberos.index');
+Route::post('/barberos/guardar', [EmpleadoController::class, 'store'])->name('barberos.store');
+Route::post('/barberos/actualizar/{id}', [EmpleadoController::class, 'update'])->name('barberos.update');
+Route::post('/barberos/eliminar/{id}', [EmpleadoController::class, 'destroy'])->name('barberos.destroy');
 
 // 4. Módulo de Reportes y Finanzas
 Route::get('/reportes', function () {
