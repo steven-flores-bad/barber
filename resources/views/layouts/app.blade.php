@@ -38,7 +38,7 @@
                     </a>
 
                     <!-- Enlace Nueva Venta -->
-                    <a href="{{ route('ventas.create') }}" title="Nueva Venta / Corte" class="flex items-center gap-3 px-3 py-2.5 {{ Request::routeIs('ventas.create') ? 'bg-amber-500 text-slate-950 font-semibold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white' }} rounded-xl transition-all text-sm h-11 group">
+                    <a href="{{ route('ventas.index') }}" title="Nueva Venta / Corte" class="flex items-center gap-3 px-3 py-2.5 {{ Request::routeIs('ventas.*') ? 'bg-amber-500 text-slate-950 font-semibold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white' }} rounded-xl transition-all text-sm h-11 group">
                         <span class="text-lg flex-shrink-0">💰</span>
                         <span x-show="sidebarExpanded" x-transition.opacity class="whitespace-nowrap">Nueva Venta</span>
                     </a>

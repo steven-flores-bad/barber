@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\VentaController;
 
 // 1. Panel de Inicio
 Route::get('/', function () {
@@ -8,9 +9,13 @@ Route::get('/', function () {
 })->name('dashboard');
 
 // 2. Módulo de Ventas
-Route::get('/ventas/nueva', function () {
-    return view('ventas.create');
-})->name('ventas.create');
+Route::get('/ventas', [VentaController::class, 'index'])->name('ventas.index');
+Route::post('/ventas/guardar', [VentaController::class, 'store'])->name('ventas.store');
+
+// Recibe el ID de la venta y los datos modificados para guardarlos
+Route::post('/ventas/actualizar/{id}', [VentaController::class, 'update'])->name('ventas.update');
+// Recibe el ID de la venta para borrarla
+Route::post('/ventas/eliminar/{id}', [VentaController::class, 'destroy'])->name('ventas.destroy');
 
 // 3. Módulo de Barberos
 Route::get('/barberos', function () {
