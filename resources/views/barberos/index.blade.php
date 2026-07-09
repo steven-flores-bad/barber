@@ -130,18 +130,9 @@
             </table>
         </div>
 
-        @if($empleados->hasPages())
-            <div class="px-6 py-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between text-xs text-slate-500">
-                <div>Mostrando del <span class="font-bold text-slate-700">{{ $empleados->firstItem() }}</span> al <span class="font-bold text-slate-700">{{ $empleados->lastItem() }}</span> de <span class="font-bold text-slate-700">{{ $empleados->total() }}</span> registros</div>
-                <div class="flex gap-2">
-                    @if($empleados->onFirstPage()) <span class="px-3 py-2 bg-slate-200/60 text-slate-400 rounded-xl font-semibold cursor-not-allowed">◀️ Anterior</span>
-                    @else <a href="{{ $empleados->previousPageUrl() }}" class="px-3 py-2 bg-white border border-slate-200 text-slate-700 font-semibold rounded-xl hover:bg-slate-50">◀️ Anterior</a> @endif
-                    @if($empleados->hasMorePages()) <a href="{{ $empleados->nextPageUrl() }}" class="px-3 py-2 bg-white border border-slate-200 text-slate-700 font-semibold rounded-xl hover:bg-slate-50">Siguiente ▶️</a>
-                    @else <span class="px-3 py-2 bg-slate-200/60 text-slate-400 rounded-xl font-semibold cursor-not-allowed">Siguiente ▶️</span> @endif
-                </div>
-            </div>
-        @endif
-    </div>
+          {{-- Paginación Extraída Limpiamente --}}
+    <x-pagination :coleccion="$empleados" />
+
 
     <div x-show="openModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm" style="display: none;">
         <div @click.away="openModal = false" x-show="openModal" class="bg-white w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col">

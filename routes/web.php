@@ -3,10 +3,13 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\VentaController;
 use App\Http\Controllers\EmpleadoController;
+use App\Http\Controllers\DashboardController;
 // 1. Panel de Inicio
+
 Route::get('/', function () {
-    return view('dashboard');
-})->name('dashboard');
+    return redirect()->route('dashboard');
+});
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 // 2. Módulo de Ventas
 Route::get('/ventas', [VentaController::class, 'index'])->name('ventas.index');
