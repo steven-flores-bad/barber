@@ -46,7 +46,7 @@
         </button>
     </div>
 
-    <form action="{{ route('barberos.index') }}" method="GET" class="bg-white p-4 border border-slate-200 rounded-2xl shadow-sm flex gap-3 items-center">
+    <form action="{{ route('barberos.index') }}" method="GET" class="max-w-xl bg-white p-4 border border-slate-400 rounded-2xl shadow-sm flex gap-3 items-center">
     <div class="w-full max-w-xs">
         <input type="text" name="buscar" value="{{ request('buscar') }}" placeholder="Buscar barbero por nombre..." class="w-full rounded-xl border border-slate-100 p-2.5 bg-white text-slate-500 text-sm outline-none focus:border-amber-500 transition-all">
     </div>

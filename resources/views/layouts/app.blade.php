@@ -37,6 +37,13 @@
                         <span x-show="sidebarExpanded" x-transition.opacity class="whitespace-nowrap">Panel de Inicio</span>
                     </a>
 
+                       <!-- Enlace de servicios -->
+                     <a href="{{ route('servicios.index') }}" title="Catálogo de Servicios" class="flex items-center gap-3 px-3 py-2.5 {{ Request::routeIs('servicios.*') ? 'bg-amber-500 text-slate-950 font-semibold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white' }} rounded-xl transition-all text-sm h-11 group">
+                        <span class="text-lg flex-shrink-0">✂️</span>
+                        <span x-show="sidebarExpanded" x-transition.opacity class="whitespace-nowrap">Catálogo Servicios</span>
+                    </a>
+
+
                     <!-- Enlace Nueva Venta -->
                     <a href="{{ route('ventas.index') }}" title="Nueva Venta / Corte" class="flex items-center gap-3 px-3 py-2.5 {{ Request::routeIs('ventas.*') ? 'bg-amber-500 text-slate-950 font-semibold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white' }} rounded-xl transition-all text-sm h-11 group">
                         <span class="text-lg flex-shrink-0">💰</span>
@@ -50,7 +57,8 @@
                     </a>
 
                     <p x-show="sidebarExpanded" class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest pt-6 mb-2 whitespace-nowrap">Administración</p>
-
+                    
+                   
                     <!-- Enlace Reportes -->
                     <a href="{{ route('reportes.index') }}" title="Reportes & Finanzas" class="flex items-center gap-3 px-3 py-2.5 {{ Request::routeIs('reportes.index') ? 'bg-amber-500 text-slate-950 font-semibold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white' }} rounded-xl transition-all text-sm h-11 group">
                         <span class="text-lg flex-shrink-0">📈</span>
