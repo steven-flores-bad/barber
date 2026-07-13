@@ -2,6 +2,14 @@
 
 @section('content')
 <div class="space-y-8">
+
+{{-- MENSAJE FLOTANTE DE ÉXITO --}}
+    @if(session('success'))
+    <div class="p-4 mb-4 text-sm text-emerald-800 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center gap-2 shadow-xs transition-all animate-fade-in">
+        <span>✅</span>
+        <span class="font-bold">{{ session('success') }}</span>
+    </div>
+    @endif
     
     {{-- 1. ENCABEZADO PREMIUM DE BIENVENIDA --}}
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-900 text-white p-6 rounded-2xl shadow-lg relative overflow-hidden">
@@ -23,17 +31,62 @@
     {{-- 2. INDICADORES CLAVE DE RENDIMIENTO (KPIs) --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         
-        {{-- Tarjeta 1: Caja Chica / Recaudación --}}
-        <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm flex items-center justify-between hover:shadow-md transition-shadow">
-            <div>
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Caja del Día</p>
-                <p class="text-3xl font-black text-slate-900 mt-1">${{ number_format($cajaDia, 2) }}</p>
-                <span class="text-[11px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md mt-2 inline-block">📈 Total acumulado</span>
+     {{-- Tarjeta 1: Fondo Fijo de Caja Chica --}}
+<div class="bg-gradient-to-br from-indigo-50 to-white border-2 border-indigo-200 p-5 rounded-2xl shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow min-h-[135px]">
+    <div class="flex justify-between items-start w-full">
+        <div>
+            <p class="text-xs font-bold text-indigo-700 uppercase tracking-wider">🪙 Caja Chica Inicial</p>
+            <p class="text-3xl font-black text-indigo-600 mt-1">
+                ${{ number_format($cajaChicaHoy, 2) }}
+            </p>
+        </div>
+        <span class="text-2xl bg-indigo-500/10 p-2 rounded-xl border border-indigo-100">🪙</span>
+    </div>
+
+    @if($cajaChicaHoy == 0)
+        <form action="{{ route('reportes.cajachica.guardar') }}" method="POST" class="flex gap-1 mt-2">
+            @csrf
+            <div class="relative flex-1">
+                <span class="absolute left-2 top-1 text-2xs font-bold text-slate-400">$</span>
+                <input type="number" step="0.01" name="monto_inicial" placeholder="0.00" required class="w-full pl-4 pr-1 py-1 bg-white border border-slate-200 rounded-lg text-2xs font-bold text-slate-800 outline-none focus:border-indigo-500 transition-all">
             </div>
-            <span class="text-3xl bg-slate-50 p-3 rounded-xl border border-slate-100">💵</span>
+            <button type="submit" class="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[10px] rounded-lg transition-colors cursor-pointer shadow-xs">
+                Definir
+            </button>
+        </form>
+    @else
+        <div class="flex items-center justify-between mt-2 w-full">
+            <div class="text-[10px] text-indigo-600 font-black uppercase tracking-wider flex items-center gap-1 bg-indigo-50/50 py-1 px-2 rounded-md border border-indigo-100 w-fit">
+                ● Turno Abierto
+            </div>
+            
+            <!-- Botón que activa el Modal Original -->
+            <button type="button" onclick="document.getElementById('modal-eliminar-caja').classList.remove('hidden')" class="text-red-600 hover:text-white text-xs font-bold flex items-center gap-1.5 transition-all duration-200 cursor-pointer bg-red-50 hover:bg-red-600 px-2.5 py-1.5 rounded-xl border border-red-200 hover:border-red-600 shadow-2xs hover:scale-105">
+    🗑️ Corregir Monto
+</button>
+        </div>
+    @endif
+</div>
+
+        {{-- Tarjeta 2: Caja Total (Suma de Ventas + Caja Chica) --}}
+        <div class="bg-gradient-to-br from-emerald-950 via-slate-900 to-slate-950 text-white p-5 rounded-2xl shadow-md flex flex-col justify-between hover:shadow-lg transition-all min-h-[135px] border border-emerald-800">
+            <div class="flex justify-between items-start w-full">
+                <div>
+                    <p class="text-xs font-bold text-emerald-400 uppercase tracking-wider">💵 Caja Total (Hoy)</p>
+                    <p class="text-3xl font-black text-emerald-400 mt-1 tracking-tight">
+                        ${{ number_format($cajaDia + $cajaChicaHoy, 2) }}
+                    </p>
+                </div>
+                <span class="text-2xl bg-emerald-500/10 p-2 rounded-xl border border-emerald-800 text-emerald-400">💵</span>
+            </div>
+            
+            <div class="mt-2 pt-2 border-t border-emerald-800/60 text-[10px] text-slate-300 font-bold uppercase tracking-wider flex justify-between">
+                <span>Ventas: <strong class="text-white">${{ number_format($cajaDia, 2) }}</strong></span>
+                <span>Fondo: <strong class="text-white">${{ number_format($cajaChicaHoy, 2) }}</strong></span>
+            </div>
         </div>
 
-        {{-- Tarjeta 2: Servicios Totales --}}
+        {{-- Tarjeta 3: Servicios Totales --}}
         <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm flex items-center justify-between hover:shadow-md transition-shadow">
             <div>
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Servicios Hoy</p>
@@ -41,16 +94,6 @@
                 <span class="text-[11px] text-slate-500 mt-2 inline-block">Cortes finalizados</span>
             </div>
             <span class="text-3xl bg-slate-50 p-3 rounded-xl border border-slate-100">✂️</span>
-        </div>
-
-        {{-- Tarjeta 3: Barberos Conectados --}}
-        <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm flex items-center justify-between hover:shadow-md transition-shadow">
-            <div>
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Barberos Activos</p>
-                <p class="text-3xl font-black text-slate-900 mt-1">{{ $barberosActivos }}</p>
-                <span class="text-[11px] text-emerald-600 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md mt-2 inline-block">● Disponibles</span>
-            </div>
-            <span class="text-3xl bg-slate-50 p-3 rounded-xl border border-slate-100">👨‍🎨</span>
         </div>
 
         {{-- Tarjeta 4: Ticket Dinámico Promedio --}}
@@ -128,4 +171,11 @@
 
     </div>
 </div>
+{{-- Tu código anterior del dashboard... --}}
+
+    <!-- Inclusión limpia del archivo del modal -->
+    @include('dashboard.modal_eliminar_caja')
+
+</div>
+
 @endsection

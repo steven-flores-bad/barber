@@ -14,6 +14,14 @@ class DashboardController extends Controller
         // 1. Obtener la fecha de hoy
         $hoy = now()->toDateString();
 
+        // --- NUEVA CONSULTA: Buscar si ya se abrió la caja chica hoy ---
+        $cajaChicaReg = DB::table('cajas_chicas')
+            ->where('fecha', $hoy)
+            ->first();
+
+        // Si existe registro toma el monto inicial, si no, por defecto será 0
+        $cajaChicaHoy = $cajaChicaReg ? $cajaChicaReg->monto_inicial : 0;
+
         // 2. Caja del Día: Suma de todo lo cobrado hoy
         $cajaDia = VentaServicio::where('fecha', $hoy)->sum('precio_cobrado') ?? 0.00;
 
@@ -60,14 +68,15 @@ class DashboardController extends Controller
             return $b['total_cortes'] <=> $a['total_cortes'];
         });
 
-        // 8. Enviar variables limpias a la vista
+        // 8. Enviar variables limpias a la vista (Se incluye 'cajaChicaHoy')
         return view('dashboard.dashboard', compact(
             'cajaDia', 
             'totalServiciosHoy', 
             'barberosActivos', 
             'ticketPromedio', 
             'ultimasVentas', 
-            'rankingBarberos'
+            'rankingBarberos',
+            'cajaChicaHoy' // <-- Variable agregada con éxito
         ));
     }
 }
