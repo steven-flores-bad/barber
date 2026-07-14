@@ -6,6 +6,7 @@ use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ServicioController;
 use App\Http\Controllers\ReporteController;
+use App\Http\Controllers\CajaChicaController;
 
 // 1. Panel de Inicio
 Route::get('/', function () {
@@ -56,3 +57,11 @@ Route::prefix('reportes')->name('reportes.')->group(function () {
 Route::get('/configuracion', function () {
     return view('configuracion.index');
 })->name('config.index');
+
+// Módulo de Historial de Cajas Chicas
+Route::prefix('caja-chica-historial')->name('cajachica.')->group(function () {
+    Route::get('/', [CajaChicaController::class, 'index'])->name('index');
+    Route::post('/actualizar/{id}', [CajaChicaController::class, 'update'])->name('update');
+    Route::post('/eliminar/{id}', [CajaChicaController::class, 'destroy'])->name('destroy');
+    Route::get('/descargar-pdf', [CajaChicaController::class, 'descargarPdf'])->name('pdf');
+});

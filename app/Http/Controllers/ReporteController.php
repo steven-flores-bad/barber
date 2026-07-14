@@ -40,53 +40,65 @@ class ReporteController extends Controller
     }
 
     // Reporte 2: Ganancias del Día (Cierre de Caja Diario)
-public function cierreCaja(Request $request)
-{
-    $fecha = $request->get('fecha', date('Y-m-d'));
+    public function cierreCaja(Request $request)
+    {
+        $fecha = $request->get('fecha', date('Y-m-d'));
 
-    $granTotal = DB::table('ventas_servicios')
-        ->whereDate('fecha', $fecha)
-        ->sum('precio_cobrado');
+        $granTotal = DB::table('ventas_servicios')
+            ->whereDate('fecha', $fecha)
+            ->sum('precio_cobrado');
 
-    $totalCortes = DB::table('ventas_servicios')
-        ->whereDate('fecha', $fecha)
-        ->count();
+        $totalCortes = DB::table('ventas_servicios')
+            ->whereDate('fecha', $fecha)
+            ->count();
 
-    return view('reportes.cierre_caja', compact('granTotal', 'totalCortes', 'fecha'));
-}
+        return view('reportes.cierre_caja', compact('granTotal', 'totalCortes', 'fecha'));
+    }
 
-/**
- * Reporte NUEVO: Genera el PDF Oficial de Arqueo y Cierre de Caja
- */
-public function pdfCierreCaja(Request $request)
-{
-    $fecha = $request->get('fecha', date('Y-m-d'));
+    /**
+     * Reporte NUEVO: Genera el PDF Oficial de Arqueo y Cierre de Caja
+     */
+    public function pdfCierreCaja(Request $request)
+    {
+        $fecha = $request->get('fecha', date('Y-m-d'));
 
-    // 1. Totales Generales
-    $granTotal = DB::table('ventas_servicios')->whereDate('fecha', $fecha)->sum('precio_cobrado');
-    $totalCortes = DB::table('ventas_servicios')->whereDate('fecha', $fecha)->count();
+        $cajaChicaReg = DB::table('cajas_chicas')
+            ->where('fecha', $fecha)
+            ->first();
 
-    // 2. Desglose de recaudación por cada barbero (Útil para pagar comisiones al cierre)
-    $resumenBarberos = DB::table('ventas_servicios')
-        ->join('empleados', 'ventas_servicios.empleado_id', '=', 'empleados.id')
-        ->select('empleados.nombre as barbero', DB::raw('COUNT(ventas_servicios.id) as cortes'), DB::raw('SUM(precio_cobrado) as total'))
-        ->whereDate('fecha', $fecha)
-        ->groupBy('empleados.id', 'empleados.nombre')
-        ->get();
+        $cajaChicaHoy = $cajaChicaReg ? $cajaChicaReg->monto_inicial : 0.00;
 
-    // 3. Desglose por Nombre de Servicio (Para ver qué se vendió hoy)
-    $resumenServicios = DB::table('ventas_servicios')
-        ->join('servicios', 'ventas_servicios.servicio_id', '=', 'servicios.id')
-        ->select('servicios.nombre_servicio as servicio', DB::raw('COUNT(ventas_servicios.id) as cantidad'), DB::raw('SUM(precio_cobrado) as total'))
-        ->whereDate('fecha', $fecha)
-        ->groupBy('servicios.id', 'servicios.nombre_servicio')
-        ->get();
+        $granTotal = DB::table('ventas_servicios')->whereDate('fecha', $fecha)->sum('precio_cobrado') ?? 0.00;
+        $totalCortes = DB::table('ventas_servicios')->whereDate('fecha', $fecha)->count();
 
-    $pdf = Pdf::loadView('reportes.pdf_cierre_caja', compact('granTotal', 'totalCortes', 'fecha', 'resumenBarberos', 'resumenServicios'));
-    
-    return $pdf->download("cierre_caja_{$fecha}.pdf");
-}
+        $cajaTotalAcumulada = $granTotal + $cajaChicaHoy;
 
+        $resumenBarberos = DB::table('ventas_servicios')
+            ->join('empleados', 'ventas_servicios.empleado_id', '=', 'empleados.id')
+            ->select('empleados.nombre as barbero', DB::raw('COUNT(ventas_servicios.id) as cortes'), DB::raw('SUM(precio_cobrado) as total'))
+            ->whereDate('fecha', $fecha)
+            ->groupBy('empleados.id', 'empleados.nombre')
+            ->get();
+
+        $resumenServicios = DB::table('ventas_servicios')
+            ->join('servicios', 'ventas_servicios.servicio_id', '=', 'servicios.id')
+            ->select('servicios.nombre_servicio as servicio', DB::raw('COUNT(ventas_servicios.id) as cantidad'), DB::raw('SUM(precio_cobrado) as total'))
+            ->whereDate('fecha', $fecha)
+            ->groupBy('servicios.id', 'servicios.nombre_servicio')
+            ->get();
+
+        $pdf = Pdf::loadView('reportes.pdf_cierre_caja', compact(
+            'granTotal', 
+            'totalCortes', 
+            'fecha', 
+            'cajaChicaHoy', 
+            'cajaTotalAcumulada', 
+            'resumenBarberos', 
+            'resumenServicios'
+        ));
+        
+        return $pdf->download("cierre_caja_{$fecha}.pdf");
+    } 
 
     // Reporte 3: Rendimiento por Barbero (Por Día, Semana y Mes)
     public function rendimientoBarberos(Request $request)
@@ -152,7 +164,7 @@ public function pdfCierreCaja(Request $request)
     {
         $tipo = $request->get('tipo');
         $data = [];
-        $titulo = "Reporte Administrative";
+        $titulo = "Reporte Administrativo";
 
         if ($tipo === 'ventas') {
             $desde = $request->get('desde', date('Y-m-d'));
@@ -164,6 +176,10 @@ public function pdfCierreCaja(Request $request)
                 ->select('ventas_servicios.id as ticket_id', 'ventas_servicios.fecha', 'ventas_servicios.hora', 'servicios.nombre_servicio', 'empleados.nombre as barbero', 'ventas_servicios.precio_cobrado')
                 ->whereBetween('ventas_servicios.fecha', [$desde, $hasta])
                 ->get();
+
+            $pdf = Pdf::loadView('reportes.pdf_generic', compact('data', 'titulo', 'tipo'));
+            return $pdf->download('reporte_ventas_'.time().'.pdf');
+
         } elseif ($tipo === 'top') {
             $titulo = "Ranking de Servicios Más Vendidos (Top)";
             $data['items'] = DB::table('ventas_servicios')
@@ -171,11 +187,55 @@ public function pdfCierreCaja(Request $request)
                 ->select('servicios.nombre_servicio', DB::raw('COUNT(ventas_servicios.id) as cantidad_vendida'), DB::raw('SUM(ventas_servicios.precio_cobrado) as ingresos_totales'))
                 ->groupBy('servicios.id', 'servicios.nombre_servicio')
                 ->orderBy('cantidad_vendida', 'desc')->get();
-        }
 
-        $pdf = Pdf::loadView('reportes.pdf_generic', compact('data', 'titulo', 'tipo'));
-        return $pdf->download('reporte_santein_'.time().'.pdf');
-    }
+            $pdf = Pdf::loadView('reportes.pdf_generic', compact('data', 'titulo', 'tipo'));
+            return $pdf->download('reporte_top_'.time().'.pdf');
+
+        }elseif ($tipo === 'barberos') {
+            $filtro = $request->get('periodo', 'dia');
+            $hoy = Carbon::now();
+            $titulo = "Rendimiento de Equipo - Filtro: " . strtoupper($filtro);
+
+            $query = DB::table('ventas_servicios')
+                ->join('empleados', 'ventas_servicios.empleado_id', '=', 'empleados.id')
+                ->join('servicios', 'ventas_servicios.servicio_id', '=', 'servicios.id')
+                ->select(
+                    'empleados.nombre as barbero', 
+                    'servicios.nombre_servicio', 
+                    'ventas_servicios.precio_cobrado'
+                );
+
+            if ($filtro === 'semana') {
+                $inicio = (clone $hoy)->startOfWeek()->format('Y-m-d');
+                $fin = (clone $hoy)->endOfWeek()->format('Y-m-d');
+                $query->whereBetween('ventas_servicios.fecha', [$inicio, $fin]);
+            } elseif ($filtro === 'mes') {
+                $query->whereMonth('ventas_servicios.fecha', $hoy->month)->whereYear('ventas_servicios.fecha', $hoy->year);
+            } else {
+                $query->whereDate('ventas_servicios.fecha', $hoy->format('Y-m-d'));
+            }
+
+            $transacciones = $query->get();
+
+            // Agrupamos por Barbero
+            $ventasPorBarbero = $transacciones->groupBy('barbero')->map(function ($serviciosDelBarbero) {
+                // Agrupamos por tipo de servicio
+                return $serviciosDelBarbero->groupBy('nombre_servicio')->map(function ($grupoServicio) {
+                    $cantidad = $grupoServicio->count();
+                    $totalCobrado = $grupoServicio->sum('precio_cobrado');
+                    
+                    return [
+                        'cantidad' => $cantidad,
+                        'precio_unitario' => $cantidad > 0 ? ($totalCobrado / $cantidad) : 0, // Precio cobrado individual
+                        'total_cobrado' => $totalCobrado
+                    ];
+                });
+            });
+
+            $pdf = Pdf::loadView('reportes.pdfs.pdf_barberos', compact('ventasPorBarbero', 'titulo', 'filtro'));
+            return $pdf->download('reporte_rendimiento_barberos_'.time().'.pdf');
+        }
+    } 
 
     /**
      * Reporte NUEVO: Genera el PDF exclusivo de ventas detalladas con totales abajo de la tabla
@@ -185,7 +245,6 @@ public function pdfCierreCaja(Request $request)
         $desde = $request->get('desde', date('Y-m-d'));
         $hasta = $request->get('hasta', date('Y-m-d'));
 
-        // Consultamos la base de datos exactamente con los nombres de tus tablas y joins
         $ventas = DB::table('ventas_servicios')
             ->join('servicios', 'ventas_servicios.servicio_id', '=', 'servicios.id')
             ->join('empleados', 'ventas_servicios.empleado_id', '=', 'empleados.id')
@@ -198,50 +257,10 @@ public function pdfCierreCaja(Request $request)
                 'ventas_servicios.precio_cobrado'
             )
             ->whereBetween('ventas_servicios.fecha', [$desde, $hasta])
-            ->orderBy('ventas_servicios.id', 'asc') // Orden ascendente para lectura de reporte correlativo
+            ->orderBy('ventas_servicios.id', 'asc')
             ->get();
 
-        // Cargamos tu plantilla 'pdf_ventas_detalladas.blade.php'
         $pdf = Pdf::loadView('reportes.pdf_ventas_detalladas', compact('ventas', 'desde', 'hasta'));
-
-        // Descargamos el archivo final
         return $pdf->download("reporte_ventas_{$desde}_a_{$hasta}.pdf");
-    }
-
-    /**
-     * Guarda o actualiza el monto inicial de la caja chica para la fecha actual
-     */
-    public function guardarCajaChica(Request $request)
-    {
-        $request->validate([
-            'monto_inicial' => 'required|numeric|min:0'
-        ]);
-
-        $hoy = date('Y-m-d');
-
-        // Insertar o actualizar si ya existe un registro para el día de hoy
-        DB::table('cajas_chicas')->updateOrInsert(
-            ['fecha' => $hoy],
-            [
-                'monto_inicial' => $request->input('monto_inicial'),
-                'updated_at' => now(),
-                'created_at' => now()
-            ]
-        );
-
-        return redirect()->route('dashboard')->with('success', 'Caja chica establecida correctamente.');
-    }
-
-    /**
-     * Elimina el monto inicial de la caja chica del día de hoy
-     */
-    public function eliminarCajaChica()
-    {
-        $hoy = date('Y-m-d');
-
-        // Eliminamos el registro de la fecha actual
-        DB::table('cajas_chicas')->where('fecha', $hoy)->delete();
-
-        return redirect()->route('dashboard')->with('success', 'El monto de la caja chica se ha eliminado correctamente.');
     }
 }

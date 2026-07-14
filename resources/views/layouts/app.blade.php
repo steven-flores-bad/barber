@@ -58,7 +58,13 @@
 
                     <p x-show="sidebarExpanded" class="px-3 text-[10px] font-bold text-slate-500 uppercase tracking-widest pt-6 mb-2 whitespace-nowrap">Administración</p>
                     
-                   
+                    <!-- caja chica -->
+                    <a href="{{ route('cajachica.index') }}" title="Historial Cajas Chicas" class="flex items-center gap-3 px-3 py-2.5 {{ Request::routeIs('cajachica.*') ? 'bg-amber-500 text-slate-950 font-semibold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white' }} rounded-xl transition-all text-sm h-11 group">
+                        <span class="text-lg flex-shrink-0">💸</span>
+                        <span x-show="sidebarExpanded" x-transition.opacity class="whitespace-nowrap">Historial Cajas Chica</span>
+                    </a>
+
+
                     <!-- Enlace Reportes -->
                     <a href="{{ route('reportes.index') }}" title="Reportes & Finanzas" class="flex items-center gap-3 px-3 py-2.5 {{ Request::routeIs('reportes.index') ? 'bg-amber-500 text-slate-950 font-semibold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white' }} rounded-xl transition-all text-sm h-11 group">
                         <span class="text-lg flex-shrink-0">📈</span>

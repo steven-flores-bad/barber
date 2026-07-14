@@ -78,27 +78,25 @@
         </tbody>
     </table>
 
-    <div class="seccion-titulo">📝 Verificación de Efectivo (Arqueo Manual)</div>
+    <div class="seccion-titulo">📝 Verificación de Efectivo (Arqueo en Sistema)</div>
     <table class="tabla-resumen" style="margin-top: 5px;">
         <tr>
-            <td>(+) Fondo Fijo Inicial (Caja Chica):</td>
-            <td class="text-right" style="width: 30%;">[ $___________ ]</td>
+            <td>(+) Fondo Fijo Inicial (Caja Chica de la Mañana):</td>
+            <td class="text-right" style="width: 30%; font-weight: bold; color: #475569;">
+                ${{ number_format($cajaChicaHoy, 2) }}
+            </td>
         </tr>
         <tr>
-            <td>(+) Ingreso Total del Turno:</td>
-            <td class="text-right"><strong>${{ number_format($granTotal, 2) }}</strong></td>
+            <td>(+) Ingreso Total Producido por Servicios (Cortes):</td>
+            <td class="text-right" style="font-weight: bold; color: #16a34a;">
+                +${{ number_format($granTotal, 2) }}
+            </td>
         </tr>
-        <tr>
-            <td>(=) Total Esperado en Caja:</td>
-            <td class="text-right">[ $___________ ]</td>
-        </tr>
-        <tr>
-            <td>(-) Efectivo Real Contado:</td>
-            <td class="text-right">[ $___________ ]</td>
-        </tr>
-        <tr>
-            <td>(±) Diferencia (Faltante / Sobrante):</td>
-            <td class="text-right">[ $___________ ]</td>
+        <tr style="border-top: 2px solid #000;">
+            <td style="padding-top: 10px; font-weight: bold;">(=) TOTAL REAL ESPERADO EN CAJA:</td>
+            <td class="text-right" style="font-size: 14px; font-weight: bold; padding-top: 10px;">
+                ${{ number_format($cajaTotalAcumulada, 2) }}
+            </td>
         </tr>
     </table>
 
