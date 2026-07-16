@@ -1,0 +1,46 @@
+/* public/css/login.css */
+body {
+    background: radial-gradient(circle, #1e1e24 0%, #0f0f12 100%);
+    color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+}
+.login-card, .register-card {
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 1px solid #0026ff; 
+    border-radius: 15px;
+    box-shadow: 0px 8px 24px rgba(128, 21, 21, 0.5);
+}
+.btn-gold {
+    background-color: #2b5c8f;
+    color: #ffffff;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+.btn-gold:hover {
+    background-color: #273dbe;
+    color: #fff;
+    box-shadow: 0 0 10px rgba(55, 58, 212, 0.5);
+}
+.form-control {
+    background-color: #d6cdcd;
+    border: 1px solid #2c6cb1;
+    color: #000000;
+}
+.form-control:focus {
+    background-color:   #d6cdcd;
+    border-color: #2b5c8f;
+    color: #000000;
+    box-shadow: 0 0 0 0.25rem rgba(49, 46, 226, 0.25);
+}
+.text-gold {
+    color: #2b5c8f;
+}
+.barber-pole-border {
+    height: 5px;
+    background: repeating-linear-gradient(45deg, #cc292b, #cc292b 10px, #ffffff 10px, #ffffff 20px, #2b5c8f 20px, #2b5c8f 30px, #ffffff 30px, #ffffff 40px);
+    border-top-left-radius: 14px;
+    border-top-right-radius: 14px;
+}
