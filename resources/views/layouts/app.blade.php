@@ -64,7 +64,7 @@
                         <span class="text-lg flex-shrink-0">⚙️</span>
                         <span x-show="sidebarExpanded" x-transition.opacity class="whitespace-nowrap">Configuración</span>
                     </a>
-                </nav>
+                 
             </div>
 
             <div class="p-3 border-t border-slate-800 bg-slate-950/40">

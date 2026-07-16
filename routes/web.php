@@ -16,9 +16,6 @@ Route::redirect('/', '/login');
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
-    
-    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-    Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 });
 
 // 3. RUTAS PROTEGIDAS (Solo accesibles si estás Autenticado)
@@ -26,6 +23,16 @@ Route::middleware('auth')->group(function () {
     
     // Panel de Inicio Principal (Usando tu DashboardController)
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+// Módulo de Gestión de Usuarios (Exclusivo para el Administrador)
+    Route::get('/configuracion/usuarios', [AuthController::class, 'index'])->name('usuarios.index');
+    Route::get('/configuracion/usuarios/nuevo', [AuthController::class, 'showRegister'])->name('usuarios.create');
+    Route::post('/configuracion/usuarios/guardar', [AuthController::class, 'register'])->name('usuarios.store');
+
+    // Rutas para Editar y Eliminar Usuarios (Solo Admin)
+    Route::get('/configuracion/usuarios/editar/{id}', [AuthController::class, 'edit'])->name('usuarios.edit');
+    Route::post('/configuracion/usuarios/actualizar/{id}', [AuthController::class, 'update'])->name('usuarios.update');
+    Route::delete('/configuracion/usuarios/eliminar/{id}', [AuthController::class, 'destroy'])->name('usuarios.destroy');
 
     // Módulo de Ventas
     Route::get('/ventas', [VentaController::class, 'index'])->name('ventas.index');
